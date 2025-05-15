@@ -1,28 +1,22 @@
-import pygame
+import pygame, sys, os, player
+from pytmx.util_pygame import load_pygame
 pygame.init()
 
-import animator as anim
+import system 
 
-info = pygame.display.Info()
-screen_width = info.current_w
-screen_height = info.current_h 
+sys_info = system.System()
 
-screen = pygame.display.set_mode((screen_width, screen_height),pygame.FULLSCREEN)
+screen = pygame.display.set_mode((sys_info.screen_width, sys_info.screen_height),pygame.FULLSCREEN)
 pygame.display.set_caption("Escape Room")
 
 running = True
-
-class Player:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
         
-    def draw(self):
-        pass
+map_path = os.path.join("Map","CurrentMap", "map.tmx")
+map_data = load_pygame(map_path)
 
-player = Player(50, 50, 50, 50)
+import maploader
+map = maploader.Map(map_data)
+player = player.Player(50, 50, 50, 50)
 
 while running:
     for event in pygame.event.get():
@@ -32,8 +26,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
-    player.draw()
+    
+    player.draw(screen)
+    pygame.time.Clock().tick(sys_info.fps)
     pygame.display.update()
+    
 
 
 pygame.quit()
