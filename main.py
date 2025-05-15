@@ -1,6 +1,8 @@
 import pygame
 pygame.init()
 
+import animator as anim
+
 info = pygame.display.Info()
 screen_width = info.current_w
 screen_height = info.current_h 
@@ -16,6 +18,7 @@ class Player:
         self.y = y
         self.width = width
         self.height = height
+        
     def draw(self):
         pass
 
