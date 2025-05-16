@@ -1,5 +1,9 @@
 import pygame
 import os, sys
+import system as sys_info
+
+
+
 class Player:
     def __init__(self, x, y, width = 32, height = 32, fps = 60):
         self.x = x
@@ -8,9 +12,9 @@ class Player:
         self.height = height
         self.num_frames = 4
         self.frame_duration = fps/self.num_frames
-        
         self.frame = 0
-
+        self.movement_speed = 10
+        self.last_dir = "Down", False
         # [0] = Up
         # [1] = Down
         # [2] = Right
@@ -18,29 +22,78 @@ class Player:
         self.direction = [False , False, True, False]
         self.action = "Idle"
     def update_anim(self, new_action):
-        self.frame = 0
         if new_action == "Idle":
             self.num_frames = 4
+            self.action = "Idle"
         elif new_action == "Walk":
             self.num_frames = 6
+            self.action = "Walk"
         self.frame = 0
         self.frame_duration = 60/self.num_frames
 
     def get_direction(self):
-        match self.direction:
-            case [True, False, False, False]:
-                return "Up", False
-            case [False, True, False, False]:
-                return "Sides", False
-            case [False, False, True, False]:
-                return "Down", False
-            case [False, False, False, True]:
-                return "Sides",True
-    
+        if self.direction[1] == True:
+            self.last_dir = 'Sides', True
+            return "Sides", True
+        elif self.direction[3] == True:
+            self.last_dir = 'Sides', False
+            return "Sides", False
+        elif self.direction[0] == True:
+            self.last_dir = 'Up', False
+            return "Up", False
+        elif self.direction[2] == True:
+            self.last_dir = 'Down', False
+            return "Down", False
+        else:
+            return self.last_dir
+        
+    def check_run(self):
+        if self.action !="Walk":
+            self.update_anim("Walk")
+    def check_idle(self):
+        if self.direction == [False,False,False,False] and self.action!="Idle":
+            self.update_anim("Idle")
+    def update_input(self):
+        keys = pygame.key.get_pressed()
+        
+        self.direction = [False, False, False, False] 
+
+        if keys[pygame.K_w]:
+            self.direction[0] = True
+        if keys[pygame.K_s]:
+            self.direction[2] = True
+        if keys[pygame.K_d]:
+            self.direction[1] = True
+        if keys[pygame.K_a]:
+            self.direction[3] = True
+
+        if self.direction != [False, False, False, False]:
+            self.check_run()
+        else:
+            self.check_idle()
+
+    def delta_movement(self):
+        delta_x = 0
+        delta_y = 0
+        if self.action == "Walk":
+            if self.direction[0] == True:
+                delta_y-=self.movement_speed/10
+            if self.direction[1] == True:
+                delta_x+=self.movement_speed/10
+            if self.direction[2] == True:
+                delta_y+= self.movement_speed/10
+            if self.direction[3] == True:
+                delta_x-= self.movement_speed/10
+        self.x += delta_x
+        self.y += delta_y
+                    
+
     def draw(self, screen):
         if self.frame >= self.frame_duration*self.num_frames:
             self.frame = 0
         frame = pygame.image.load(os.path.join("Resources", "Animations","Player", self.action,self.get_direction()[0], str(int(self.frame//self.frame_duration))+".png"))
+        scaled_frame = pygame.transform.scale(frame,(sys_info.convert_rel_to_abs(self.width, self.height)))
+        flipped_frame = pygame.transform.flip(scaled_frame, self.get_direction()[1],False)
         self.frame += 1
-        screen.blit(frame, (self.x, self.y))
+        screen.blit(flipped_frame, sys_info.convert_rel_pos_to_abs_pos(self.x,self.y))
 
