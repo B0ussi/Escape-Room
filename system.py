@@ -4,7 +4,8 @@ fps = 60
 screen_info = pygame.display.Info()
 screen_width = screen_info.current_w
 screen_height = screen_info.current_h
-
+game_width = 480
+game_height = 270
 def convert_rel_to_abs(rel_px_w, rel_px_h):
         #Base Res = 480x270
         mult_x = screen_width/480

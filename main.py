@@ -16,9 +16,7 @@ map_data = load_pygame(map_path)
 
 import maploader
 map = maploader.Map(map_data)
-map.run()
-
-player = player.Player(240-16, 135-16, 32, 32)
+player = player.Player(240-16, 135-16,map, 32, 32)
 
 while running:
     screen.fill((0, 0, 0)) 
@@ -29,9 +27,10 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
-    map.sprite_group.draw(screen)
+
     player.update_input()
     player.delta_movement()
+    map.draw(map.offset,screen)
     player.draw(screen)
 
     pygame.display.update()

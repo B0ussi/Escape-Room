@@ -3,9 +3,8 @@ import os, sys
 import system as sys_info
 
 
-
 class Player:
-    def __init__(self, x, y, width = 32, height = 32, fps = 60):
+    def __init__(self, x, y, map, width = 32, height = 32, fps = 60):
         self.x = x
         self.y = y
         self.width = width
@@ -15,6 +14,9 @@ class Player:
         self.frame = 0
         self.movement_speed = 10
         self.last_dir = "Down", False
+        self.exceeding_y = False
+        self.exceeding_x = False
+        self.map = map
         # [0] = Up
         # [1] = Down
         # [2] = Right
@@ -71,8 +73,38 @@ class Player:
             self.check_run()
         else:
             self.check_idle()
+    def update_exceeding(self):
+        positions = []
+        atts = []
+        if .75 < self.x/sys_info.game_width:
+            self.exceeding_x = True
+            positions.append("x")
+            atts.append("greater")
+        elif .25 > self.x/sys_info.game_width:
+            self.exceeding_x = True
+            positions.append("x")
+            atts.append("less")
+        else:
+            self.exceeding_x = False
+        if .75 < self.y/sys_info.game_height:
+            self.exceeding_y = True
+            positions.append("y")
+            atts.append("greater")
+        elif .25 > self.y/sys_info.game_height:
+            self.exceeding_y = True
+            positions.append("y")
+            atts.append("less")
+        else:
+            self.exceeding_y = False
+        return (positions, atts)
+
+    def map_offset_change(self, delta_x, delta_y):
+        self.map.offset[0] += delta_x*sys_info.screen_width/sys_info.game_width
+    
+        self.map.offset[1] += delta_y*sys_info.screen_height/sys_info.game_height
 
     def delta_movement(self):
+        info = self.update_exceeding()
         delta_x = 0
         delta_y = 0
         if self.action == "Walk":
@@ -84,8 +116,27 @@ class Player:
                 delta_y+= self.movement_speed/10
             if self.direction[3] == True:
                 delta_x-= self.movement_speed/10
-        self.x += delta_x
-        self.y += delta_y
+        for i,pos in enumerate(info[0]):
+            sync_att = info[1][i]
+            if pos =="x":
+                if sync_att =="greater" and delta_x<= 0:
+                    self.x += delta_x
+                elif sync_att =="less" and delta_x >= 0:
+                    self.x += delta_x
+                else:
+                    self.map_offset_change(delta_x, 0)
+            elif pos == "y":
+                if sync_att =="greater" and delta_y <= 0:
+                    self.y += delta_y
+                elif sync_att == "less" and delta_y >= 0:
+                    self.y += delta_y
+                else:
+                    self.map_offset_change(0, delta_y)
+        if not self.exceeding_x:
+            self.x += delta_x
+        if not self.exceeding_y:
+            self.y += delta_y
+
                     
 
     def draw(self, screen):
@@ -96,4 +147,3 @@ class Player:
         flipped_frame = pygame.transform.flip(scaled_frame, self.get_direction()[1],False)
         self.frame += 1
         screen.blit(flipped_frame, sys_info.convert_rel_pos_to_abs_pos(self.x,self.y))
-
