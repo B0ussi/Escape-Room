@@ -7,6 +7,7 @@ class Player:
     def __init__(self, x, y, map, width = 32, height = 32, fps = 60):
         self.x = x
         self.y = y
+        print(sys_info.get_player_loc((x,y),map.offset))
         self.width = width
         self.height = height
         self.num_frames = 4
@@ -107,35 +108,44 @@ class Player:
         info = self.update_exceeding()
         delta_x = 0
         delta_y = 0
-        if self.action == "Walk":
-            if self.direction[0] == True:
-                delta_y-=self.movement_speed/10
-            if self.direction[1] == True:
-                delta_x+=self.movement_speed/10
-            if self.direction[2] == True:
-                delta_y+= self.movement_speed/10
-            if self.direction[3] == True:
-                delta_x-= self.movement_speed/10
-        for i,pos in enumerate(info[0]):
-            sync_att = info[1][i]
-            if pos =="x":
-                if sync_att =="greater" and delta_x<= 0:
-                    self.x += delta_x
-                elif sync_att =="less" and delta_x >= 0:
-                    self.x += delta_x
-                else:
-                    self.map_offset_change(delta_x, 0)
-            elif pos == "y":
-                if sync_att =="greater" and delta_y <= 0:
-                    self.y += delta_y
-                elif sync_att == "less" and delta_y >= 0:
-                    self.y += delta_y
-                else:
-                    self.map_offset_change(0, delta_y)
-        if not self.exceeding_x:
-            self.x += delta_x
-        if not self.exceeding_y:
-            self.y += delta_y
+        canrun = True
+
+        for obj in self.map.collisions:
+            player_loc = sys_info.get_player_loc((self.x,self.y),self.map.offset)
+
+            plr_param = [player_loc[0],player_loc[1],self.width*sys_info.get_scale_mult(), self.height*sys_info.get_scale_mult()]
+            if self.map.isColliding(obj,plr_param):
+                canrun = False
+        if canrun:
+            if self.action == "Walk":
+                if self.direction[0] == True:
+                    delta_y-=self.movement_speed/10
+                if self.direction[1] == True:
+                    delta_x+=self.movement_speed/10
+                if self.direction[2] == True:
+                    delta_y+= self.movement_speed/10
+                if self.direction[3] == True:
+                    delta_x-= self.movement_speed/10
+            for i,pos in enumerate(info[0]):
+                sync_att = info[1][i]
+                if pos =="x":
+                    if sync_att =="greater" and delta_x<= 0:
+                        self.x += delta_x
+                    elif sync_att =="less" and delta_x >= 0:
+                        self.x += delta_x
+                    else:
+                        self.map_offset_change(delta_x, 0)
+                elif pos == "y":
+                    if sync_att =="greater" and delta_y <= 0:
+                        self.y += delta_y
+                    elif sync_att == "less" and delta_y >= 0:
+                        self.y += delta_y
+                    else:
+                        self.map_offset_change(0, delta_y)
+            if not self.exceeding_x:
+                self.x += delta_x
+            if not self.exceeding_y:
+                self.y += delta_y
 
                     
 

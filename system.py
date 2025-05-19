@@ -1,6 +1,6 @@
 import pygame
 
-fps = 60
+fps = 80
 screen_info = pygame.display.Info()
 screen_width = screen_info.current_w
 screen_height = screen_info.current_h
@@ -27,3 +27,10 @@ def convert_scale_to_abs(scale_x,scale_y):
         return abs_pos_x, abs_pos_y
 def get_scale_mult():
         return screen_width/480
+def get_player_loc(player_cords, camera_offset):
+        player_x_diff = (player_cords[0]-(480/2)+16)*(screen_width/480)
+        player_y_diff = (player_cords[1]-(270/2)+16)*(screen_height/270)
+        cam_midpoint = camera_offset[0]-screen_width/2, camera_offset[1]-screen_height/2
+        x = cam_midpoint[0]+player_x_diff
+        y = cam_midpoint[1]+player_y_diff
+        return (x,y)

@@ -16,10 +16,10 @@ map_data = load_pygame(map_path)
 
 import maploader
 map = maploader.Map(map_data)
-player = player.Player(240-16, 135-16,map, 32, 32)
+player = player.Player(240-16, 135-16,map, 32, 32, sys_info.fps)
 
 while running:
-    screen.fill((0, 0, 0)) 
+    screen.fill((17, 3, 32)) 
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
@@ -30,7 +30,8 @@ while running:
 
     player.update_input()
     player.delta_movement()
-    map.draw(map.offset,screen)
+    map.draw_map(map.offset,screen)
+    map.draw_objs(map.offset, screen)
     player.draw(screen)
 
     pygame.display.update()
