@@ -113,8 +113,13 @@ class Player:
         for obj in self.map.collisions:
             player_loc = sys_info.get_player_loc((self.x,self.y),self.map.offset)
 
-            plr_param = [player_loc[0],player_loc[1],self.width*sys_info.get_scale_mult(), self.height*sys_info.get_scale_mult()]
-            if self.map.isColliding(obj,plr_param):
+            obj_world_x = obj.x*sys_info.get_scale_mult()
+            obj_world_y = obj.y*sys_info.get_scale_mult()
+            obj_width = self.map.tmx_data.tilewidth
+            obj_height = self.map.tmx_data.tileheight
+
+            param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0], player_loc[1],player_loc[0]+16)]
+            if self.map.isColliding(param[0],param[1]):
                 canrun = False
         if canrun:
             if self.action == "Walk":

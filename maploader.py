@@ -62,7 +62,7 @@ class Map:
 
     def offset_from_tile(self,tile_x, tile_y):
         offset_x = tile_x*self.tmx_data.tilewidth*(sys_info.get_scale_mult()/1.25)
-        print("OFFSET:"+ str(offset_x-sys_info.screen_width/2))
+        print("OFFSET:"+ str(offset_x-sys_info.screen_width))
         offset_y = tile_y*self.tmx_data.tileheight*(sys_info.get_scale_mult()/1.25)
         return ([offset_x,offset_y])
     
@@ -81,7 +81,7 @@ class Map:
             'Objects1', 'Objects2', 'Jars', 'books',
             'tableDetails1', 'appliances', 'tableDetails2'
         }
-        object_layers = {"Borders", "Stone", "Wood", "doorObjs", "bookshelfSensors"}
+        object_layers = {"Borders", "Stone", "Wood", "doorObjs", "bookshelfSensors","Test"}
         
         self.offset = self.offset_from_tile(66,32)
         self.center_offset()
@@ -99,17 +99,33 @@ class Map:
                     ## print(dir(obj))
                     x = obj.x
                     y = obj.y
+                    if layer.name =="Test":
+                        print("OBJ X: "+str(round(x*scale)))
                     if hasattr(obj, "image") and obj.image:
                         img_obj = ImageObject(scale, x, y, obj.image, self.obj_group, tile_width, tile_height)
                         self.objs.append(img_obj)
-                        if obj.properties.get("collision") is True:
-                            # print("ADDED: "+obj.name )
-                            self.collisions.append(img_obj)
-                            # print(self.collisions)
-    def isColliding(self,obj,plr):
-        #print(obj.world_x, plr[0])
-        if obj.world_x < plr[0] + obj.width and obj.world_x + obj.width > plr[0] and obj.world_y < plr[1] + plr[3] and obj.world_y + obj.height > plr[3]:
-            return True
+                        if obj.properties.get("collision") is True and layer.name == "Test":
+                            print("ADDED: "+obj.name )
+                            self.collisions.append(obj)
+                            print(self.collisions)
+    def isColliding(self, obj, plr):
+        obj_x, obj_y, obj_width, obj_height = obj
+        plr_x, plr_y, plr_width = plr
+
+        plr_height = plr_width  # Assuming square player; if not, adjust accordingly
+        print("ran")
+        if (plr_x < obj_x + obj_width and
+            plr_x + plr_width > obj_x and
+            plr_y < obj_y + obj_height and
+            plr_y + plr_height > obj_y):
+            print("notta")
+            print(plr_x,obj_x)
+            print(plr_y,obj_y)
+            return False
+        print("COLLISION")
+        return True
+
+
 
     def draw_map(self, camera_offset, screen):
         for tile in self.tiles:

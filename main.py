@@ -6,6 +6,7 @@ pygame.init()
 import system as sys_info 
 
 screen = pygame.display.set_mode((sys_info.screen_width, sys_info.screen_height),pygame.FULLSCREEN)
+
 pygame.display.set_caption("Escape Room")
 import player
 running = True
