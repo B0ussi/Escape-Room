@@ -7,7 +7,7 @@ class Player:
     def __init__(self, x, y, map, width = 32, height = 32, fps = 60):
         self.x = x
         self.y = y
-        print(sys_info.get_player_loc((x,y),map.offset))
+        # print(sys_info.get_player_loc((x,y),map.offset))
         self.width = width
         self.height = height
         self.num_frames = 4
@@ -129,7 +129,7 @@ class Player:
             obj_width = self.map.tmx_data.width
             obj_height = self.map.tmx_data.height
 
-            param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0], player_loc[1],self.width*sys_info.get_scale_mult())]
+            param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0], player_loc[1],sys_info.convert_rel_to_abs(self.width, self.height))]
             if self.map.isColliding(param[0],param[1]):
                 canrun = False
     

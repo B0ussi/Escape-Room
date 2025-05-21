@@ -22,7 +22,7 @@ class Tile(pygame.sprite.Sprite):
         # Save world position
         self.world_x = x * scaled_width
         self.world_y = y * scaled_height
-        # print("Tile: "+"("+str(self.world_x)+","+str(self.world_y)+")")
+        # # print("Tile: "+"("+str(self.world_x)+","+str(self.world_y)+")")
         self.rect = self.image.get_rect(topleft=(self.world_x, self.world_y))
 class ImageObject(pygame.sprite.Sprite):
     _tile_cache = {}
@@ -42,7 +42,7 @@ class ImageObject(pygame.sprite.Sprite):
 
         self.world_x = round(x*scale)
         self.world_y = round(y*scale)
-        # print("OBJ: "+"("+str(self.world_x)+","+str(self.world_y)+")")
+        # # print("OBJ: "+"("+str(self.world_x)+","+str(self.world_y)+")")
         self.rect = self.image.get_rect(topleft=(self.world_x,self.world_y))        
 
 class Map:
@@ -62,7 +62,7 @@ class Map:
 
     def offset_from_tile(self,tile_x, tile_y):
         offset_x = tile_x*self.tmx_data.tilewidth*(sys_info.get_scale_mult()/1.25)
-        print("OFFSET:"+ str(offset_x-sys_info.screen_width))
+        # print("OFFSET:"+ str(offset_x-sys_info.screen_width))
         offset_y = tile_y*self.tmx_data.tileheight*(sys_info.get_scale_mult()/1.25)
         return ([offset_x,offset_y])
     
@@ -92,8 +92,8 @@ class Map:
                     tile = Tile(scale, x, y, surf, self.sprite_group, tile_width, tile_height)
                     self.tiles.append(tile)
             elif isinstance(layer, pytmx.TiledObjectGroup) and layer.name in object_layers:
-                # # print(layer)
-                # # print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                # # # print(layer)
+                # # # print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 for obj in layer:
                     x = obj.x
                     y = obj.y
@@ -103,7 +103,8 @@ class Map:
                     obj_height = obj.height * scale
 
                     if obj.name == "Test":
-                        print(f"OBJ X: {round(x*scale)}")
+                        pass
+                        # print(f"OBJ X: {round(x*scale)}")
 
                     # Handle tile image objects
                     if hasattr(obj, "image") and obj.image:
@@ -115,7 +116,7 @@ class Map:
                         self.objs.append(img_obj)
                         if obj.properties.get("collision") is True:
                             self.collisions.append(img_obj)
-                            print("ADDED:", obj.name)
+                            # print("ADDED:", obj.name)
 
                     # Also support invisible rectangles with no image
                     elif obj.properties.get("collision") is True:
@@ -132,24 +133,24 @@ class Map:
 
     def isColliding(self, obj, plr):
         obj_x, obj_y, obj_width, obj_height = obj
-        plr_x, plr_y, plr_width = plr
-        plr_width/=4
+        plr_x, plr_y, plr_dimmensions = plr
+        plr_width = plr_dimmensions[0]
 
-        plr_height = 35  # Assuming square player; if not, adjust accordingly
-        print("ran")
-        print("PLAYER WIDTH: "+str(plr_width), "OBJECT WIDTH: "+str(obj_width))
-        print("PLAYER HEIGHT: "+str(plr_height), "OBJECT_HEIGHT: "+str(obj_height))
+        plr_height = 10  # Assuming square player; if not, adjust accordingly
+        # print("ran")
+        # print("PLAYER WIDTH: "+str(plr_width), "OBJECT WIDTH: "+str(obj_width))
+        # print("PLAYER HEIGHT: "+str(plr_height), "OBJECT_HEIGHT: "+str(obj_height))
         if (plr_x < obj_x + obj_width and
             plr_x + plr_width > obj_x and
             plr_y < obj_y + obj_height and
             plr_y + plr_height > obj_y):
-            print("COLLISION")
-            print(plr_x,obj_x)
-            print(plr_y,obj_y)
+            # print("COLLISION")
+            # print(plr_x,obj_x)
+            # print(plr_y,obj_y)
             return True
-        print("notta")
-        print(plr_x,obj_x)
-        print(plr_y,obj_y)
+        # print("notta")
+        # print(plr_x,obj_x)
+        # print(plr_y,obj_y)
         return False
 
 

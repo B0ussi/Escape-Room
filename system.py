@@ -1,6 +1,6 @@
 import pygame
 
-fps = 80
+fps = 60
 screen_info = pygame.display.Info()
 screen_width = screen_info.current_w
 screen_height = screen_info.current_h
