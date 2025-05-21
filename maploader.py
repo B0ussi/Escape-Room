@@ -134,7 +134,7 @@ class Map:
     def isColliding(self, obj, plr):
         obj_x, obj_y, obj_width, obj_height = obj
         plr_x, plr_y, plr_dimmensions = plr
-        plr_width = plr_dimmensions[0]
+        plr_width = 1
 
         plr_height = 10  # Assuming square player; if not, adjust accordingly
         # print("ran")

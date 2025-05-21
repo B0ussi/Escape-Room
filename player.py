@@ -18,6 +18,7 @@ class Player:
         self.exceeding_y = False
         self.exceeding_x = False
         self.map = map
+        self.p_width = 0.25
         # [0] = Up
         # [1] = Down
         # [2] = Right
@@ -108,7 +109,7 @@ class Player:
         info = self.update_exceeding()
         delta_x = 0
         delta_y = 0
-        canrun = True
+        self.canrun = True
 
         if self.action == "Walk":
             if self.direction[0] == True:
@@ -119,21 +120,23 @@ class Player:
                 delta_y+= self.movement_speed/10
             if self.direction[3] == True:
                 delta_x-= self.movement_speed/10
-        for obj in self.map.collisions:
-            predict_x = self.x+delta_x
-            predict_y = self.y+delta_y
-            player_loc = sys_info.get_player_loc((predict_x,predict_y),self.map.offset)
+        def get_collisions():
+            for obj in self.map.collisions:
+                predict_x = self.x+delta_x
+                predict_y = self.y+delta_y
+                player_loc = sys_info.get_player_loc((predict_x,predict_y),self.map.offset)
 
-            obj_world_x = obj.world_x
-            obj_world_y = obj.world_y
-            obj_width = self.map.tmx_data.width
-            obj_height = self.map.tmx_data.height
+                obj_world_x = obj.world_x
+                obj_world_y = obj.world_y
+                obj_width = self.map.tmx_data.width
+                obj_height = self.map.tmx_data.height
 
-            param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0], player_loc[1],sys_info.convert_rel_to_abs(self.width, self.height))]
-            if self.map.isColliding(param[0],param[1]):
-                canrun = False
-    
-        if canrun:
+                param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0]+((16*sys_info.get_scale_mult())/2), player_loc[1],sys_info.convert_rel_to_abs(self.p_width/2, self.height))]
+                if self.map.isColliding(param[0],param[1]):
+                    self.canrun = False
+                    return
+            self.canrun = True
+        def exceed_t():
             for i,pos in enumerate(info[0]):
                 sync_att = info[1][i]
                 if pos =="x":
@@ -154,6 +157,22 @@ class Player:
                 self.x += delta_x
             if not self.exceeding_y:
                 self.y += delta_y
+        
+        get_collisions()
+        if self.canrun:
+            exceed_t()
+        else:
+            old_d = delta_x
+            delta_x = 0
+            get_collisions()
+            if self.canrun:
+                exceed_t()
+            else:
+                delta_x = old_d
+                delta_y = 0
+                get_collisions()
+                if self.canrun:
+                    exceed_t()
 
                     
 
@@ -165,3 +184,4 @@ class Player:
         flipped_frame = pygame.transform.flip(scaled_frame, self.get_direction()[1],False)
         self.frame += 1
         screen.blit(flipped_frame, sys_info.convert_rel_pos_to_abs_pos(self.x,self.y))
+

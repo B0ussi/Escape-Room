@@ -36,6 +36,7 @@ while running:
     map.draw_collisions(map.offset,screen)
     player.draw(screen)
 
+
     pygame.display.update()
      # RGB black background
     print(f"FPS: {clock.get_fps():.2f}")
