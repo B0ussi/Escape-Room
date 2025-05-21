@@ -31,7 +31,7 @@ def get_scale_mult():
 def get_player_loc(player_cords, camera_offset):
         player_x_diff = (player_cords[0]-(480/2)+16)*(screen_width/480)
         player_y_diff = (player_cords[1]-(270/2)+16)*(screen_height/270)
-        cam_midpoint = camera_offset[0]-screen_width/2, camera_offset[1]-screen_height/2
-        x = cam_midpoint[0]+player_x_diff+screen_width
-        y = cam_midpoint[1]+player_y_diff+screen_height
+        cam_midpoint = camera_offset[0]+screen_width/2, camera_offset[1]+screen_height/2
+        x = cam_midpoint[0]+player_x_diff
+        y = cam_midpoint[1]+player_y_diff
         return (x,y)

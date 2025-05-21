@@ -110,27 +110,30 @@ class Player:
         delta_y = 0
         canrun = True
 
+        if self.action == "Walk":
+            if self.direction[0] == True:
+                delta_y-=self.movement_speed/10
+            if self.direction[1] == True:
+                delta_x+=self.movement_speed/10
+            if self.direction[2] == True:
+                delta_y+= self.movement_speed/10
+            if self.direction[3] == True:
+                delta_x-= self.movement_speed/10
         for obj in self.map.collisions:
-            player_loc = sys_info.get_player_loc((self.x,self.y),self.map.offset)
+            predict_x = self.x+delta_x
+            predict_y = self.y+delta_y
+            player_loc = sys_info.get_player_loc((predict_x,predict_y),self.map.offset)
 
-            obj_world_x = obj.x*sys_info.get_scale_mult()
-            obj_world_y = obj.y*sys_info.get_scale_mult()
-            obj_width = self.map.tmx_data.tilewidth
-            obj_height = self.map.tmx_data.tileheight
+            obj_world_x = obj.world_x
+            obj_world_y = obj.world_y
+            obj_width = self.map.tmx_data.width
+            obj_height = self.map.tmx_data.height
 
-            param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0], player_loc[1],player_loc[0]+16)]
+            param = [(obj_world_x,obj_world_y,obj_width,obj_height),(player_loc[0], player_loc[1],self.width*sys_info.get_scale_mult())]
             if self.map.isColliding(param[0],param[1]):
                 canrun = False
+    
         if canrun:
-            if self.action == "Walk":
-                if self.direction[0] == True:
-                    delta_y-=self.movement_speed/10
-                if self.direction[1] == True:
-                    delta_x+=self.movement_speed/10
-                if self.direction[2] == True:
-                    delta_y+= self.movement_speed/10
-                if self.direction[3] == True:
-                    delta_x-= self.movement_speed/10
             for i,pos in enumerate(info[0]):
                 sync_att = info[1][i]
                 if pos =="x":

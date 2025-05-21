@@ -26,10 +26,10 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(self.world_x, self.world_y))
 class ImageObject(pygame.sprite.Sprite):
     _tile_cache = {}
-    def __init__(self, scale, x, y, surf, groups, tile_width, tile_height):
+    def __init__(self, scale, x, y, surf, groups, width, height):
         super().__init__(groups)
-        scaled_width = int(tile_width *scale)
-        scaled_height = int(tile_height * scale)
+        scaled_width = int(width *scale)
+        scaled_height = int(height * scale)
         cache_key = (id(surf), scaled_width, scaled_height)
         self.width = scaled_width
         self.height = scaled_height
@@ -95,37 +95,68 @@ class Map:
                 # # print(layer)
                 # # print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 for obj in layer:
-                    ## print(obj)
-                    ## print(dir(obj))
                     x = obj.x
                     y = obj.y
-                    if layer.name =="Test":
-                        print("OBJ X: "+str(round(x*scale)))
+
+                    # Scale width and height properly
+                    obj_width = obj.width * scale
+                    obj_height = obj.height * scale
+
+                    if obj.name == "Test":
+                        print(f"OBJ X: {round(x*scale)}")
+
+                    # Handle tile image objects
                     if hasattr(obj, "image") and obj.image:
                         img_obj = ImageObject(scale, x, y, obj.image, self.obj_group, tile_width, tile_height)
+                        img_obj.width = obj_width
+                        img_obj.height = obj_height
+                        img_obj.world_x = round(x * scale)
+                        img_obj.world_y = round(y * scale)
                         self.objs.append(img_obj)
-                        if obj.properties.get("collision") is True and layer.name == "Test":
-                            print("ADDED: "+obj.name )
-                            self.collisions.append(obj)
-                            print(self.collisions)
+                        if obj.properties.get("collision") is True:
+                            self.collisions.append(img_obj)
+                            print("ADDED:", obj.name)
+
+                    # Also support invisible rectangles with no image
+                    elif obj.properties.get("collision") is True:
+                        # Create a dummy surface for collision if needed
+                        dummy_surf = pygame.Surface((obj_width, obj_height), pygame.SRCALPHA)
+                        dummy_surf.fill((255, 0, 0, 100))  # Optional: semi-transparent red box for debugging
+                        rect_obj = ImageObject(scale, x, y, dummy_surf, self.obj_group, obj.width, obj.height)
+                        rect_obj.width = obj_width
+                        rect_obj.height = obj_height
+                        rect_obj.world_x = round(x * scale)
+                        rect_obj.world_y = round(y * scale)
+                        self.objs.append(rect_obj)
+                        self.collisions.append(rect_obj)
+
     def isColliding(self, obj, plr):
         obj_x, obj_y, obj_width, obj_height = obj
         plr_x, plr_y, plr_width = plr
+        plr_width/=4
 
-        plr_height = plr_width  # Assuming square player; if not, adjust accordingly
+        plr_height = 35  # Assuming square player; if not, adjust accordingly
         print("ran")
+        print("PLAYER WIDTH: "+str(plr_width), "OBJECT WIDTH: "+str(obj_width))
+        print("PLAYER HEIGHT: "+str(plr_height), "OBJECT_HEIGHT: "+str(obj_height))
         if (plr_x < obj_x + obj_width and
             plr_x + plr_width > obj_x and
             plr_y < obj_y + obj_height and
             plr_y + plr_height > obj_y):
-            print("notta")
+            print("COLLISION")
             print(plr_x,obj_x)
             print(plr_y,obj_y)
-            return False
-        print("COLLISION")
-        return True
+            return True
+        print("notta")
+        print(plr_x,obj_x)
+        print(plr_y,obj_y)
+        return False
 
 
+    def draw_collisions(self, camera_offset, screen):
+        for obj in self.collisions:
+            rect = pygame.Rect(obj.world_x - camera_offset[0], obj.world_y - camera_offset[1], obj.width, obj.height)
+            pygame.draw.rect(screen, (255, 0, 0), rect, 2)  # Red outline
 
     def draw_map(self, camera_offset, screen):
         for tile in self.tiles:
